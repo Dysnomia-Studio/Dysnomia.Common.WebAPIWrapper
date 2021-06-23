@@ -3,7 +3,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace Dysnomia.Common.WebAPIWrapper.Helpers {
-	class StringToBooleanConverter : JsonConverter<bool> {
+	public class StringToBooleanConverter : JsonConverter<bool> {
 		public override bool Read(ref Utf8JsonReader reader, Type type, JsonSerializerOptions options) {
 			if (reader.TokenType == JsonTokenType.String) {
 				return reader.GetString() == "true";
