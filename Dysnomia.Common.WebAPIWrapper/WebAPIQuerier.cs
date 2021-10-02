@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System.Collections.Generic;
+using System.Net;
 using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -7,6 +8,26 @@ using Dysnomia.Common.WebAPIWrapper.Exceptions;
 
 namespace Dysnomia.Common.WebAPIWrapper {
 	public class WebAPIQuerier {
+		private readonly IHttpClientFactory _clientFactory;
+		private readonly Dictionary<string, string> _defaultHeaders;
+
+		public WebAPIQuerier(IHttpClientFactory clientFactory, Dictionary<string, string> defaultHeaders = null) {
+			_clientFactory = clientFactory;
+			_defaultHeaders = defaultHeaders;
+		}
+
+		private HttpClient GetClient() {
+			var client = _clientFactory.CreateClient();
+
+			if (_defaultHeaders != null) {
+				foreach (var header in _defaultHeaders) {
+					client.DefaultRequestHeaders.Add(header.Key, header.Value);
+				}
+			}
+
+			return client;
+		}
+
 		protected async Task ThrowAPIErrors(HttpResponseMessage response) {
 			switch (response.StatusCode) {
 				case HttpStatusCode.Unauthorized: // 401
@@ -25,9 +46,7 @@ namespace Dysnomia.Common.WebAPIWrapper {
 		}
 
 		protected async Task<string> GetString(string url) {
-			using HttpClient httpClient = new HttpClient();
-
-			var response = await httpClient.GetAsync(url);
+			var response = await GetClient().GetAsync(url);
 
 			await this.ThrowAPIErrors(response);
 
@@ -39,17 +58,13 @@ namespace Dysnomia.Common.WebAPIWrapper {
 		}
 
 		protected async Task Post(string url, HttpContent content) {
-			using HttpClient httpClient = new HttpClient();
-
-			var response = await httpClient.PostAsync(url, content);
+			var response = await GetClient().PostAsync(url, content);
 
 			await this.ThrowAPIErrors(response);
 		}
 
 		protected async Task<string> PostString(string url, HttpContent content) {
-			using HttpClient httpClient = new HttpClient();
-
-			var response = await httpClient.PostAsync(url, content);
+			var response = await GetClient().PostAsync(url, content);
 
 			await this.ThrowAPIErrors(response);
 
