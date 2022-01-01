@@ -1,6 +1,7 @@
 FROM mcr.microsoft.com/dotnet/sdk:6.0
 WORKDIR /app
 
+ARG DRONE_BRANCH
 ARG SONAR_HOST
 ARG SONAR_TOKEN
 
@@ -20,7 +21,7 @@ RUN apt-get install -y nodejs
 # Build Project
 COPY . ./
 
-RUN dotnet sonarscanner begin /k:"dysnomia-common-webapiwrapper" /d:sonar.host.url="$SONAR_HOST" /d:sonar.login="$SONAR_TOKEN" /d:sonar.cs.opencover.reportsPaths="**/coverage.opencover.xml" /d:sonar.coverage.exclusions="**Test*.cs"
+RUN dotnet sonarscanner begin /k:"dysnomia-common-webapiwrapper" /d:sonar.host.url="$SONAR_HOST" /d:sonar.login="$SONAR_TOKEN" /d:sonar.cs.opencover.reportsPaths="**/coverage.opencover.xml" /d:sonar.coverage.exclusions="**Test*.cs" /d:sonar.branch.name="$DRONE_BRANCH"
 RUN dotnet restore Dysnomia.Common.WebAPIWrapper.sln --ignore-failed-sources /p:EnableDefaultItems=false
 RUN dotnet build Dysnomia.Common.WebAPIWrapper.sln /m:1 --no-restore -c Release -o out
 RUN dotnet test /p:CollectCoverage=true /p:CoverletOutputFormat=opencover
