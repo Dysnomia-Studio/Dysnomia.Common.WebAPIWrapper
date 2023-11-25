@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 namespace Dysnomia.Common.WebAPIWrapper {
 	public class WebAPIQuerier {
 		private readonly IHttpClientFactory _clientFactory;
-		private readonly Dictionary<string, string> _defaultHeaders = null;
+		private readonly Dictionary<string, string> _defaultHeaders;
 
 		public WebAPIQuerier(IHttpClientFactory clientFactory) {
 			_clientFactory = clientFactory;
@@ -56,13 +56,14 @@ namespace Dysnomia.Common.WebAPIWrapper {
 				case HttpStatusCode.ServiceUnavailable: // 503
 				case HttpStatusCode.GatewayTimeout: // 504
 					throw new InternalServerErrorException(apiError);
+				default:
+					// Do nothing
+					break;
 			}
 		}
 
 		protected static async Task ThrowApiErrorsAsync(HttpResponseMessage response) {
-			if (response is null) {
-				throw new ArgumentNullException(nameof(response));
-			}
+			ArgumentNullException.ThrowIfNull(response);
 
 			string apiError = null;
 			if (response.Content is not null) {
