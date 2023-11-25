@@ -5,7 +5,7 @@ using System.Text.Json.Serialization;
 
 namespace Dysnomia.Common.WebAPIWrapper.Helpers {
 	public class StringToNumberConverter<T> : JsonConverter<T> {
-		public override T Read(ref Utf8JsonReader reader, Type type, JsonSerializerOptions options) {
+		public override T Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) {
 			if (reader.TokenType == JsonTokenType.Number) {
 				if (typeof(T) == typeof(int)) {
 					return (T)(object)reader.GetInt32();
@@ -28,13 +28,9 @@ namespace Dysnomia.Common.WebAPIWrapper.Helpers {
 					// Cast ConvertFromString(string text) : object to (T)
 					return (T)converter.ConvertFromString(s);
 				}
-				return default(T);
+				return default;
 			} catch (NotSupportedException) {
-				return default(T);
-			}
-
-			using (JsonDocument document = JsonDocument.ParseValue(ref reader)) {
-				throw new Exception($"unable to parse {document.RootElement.ToString()} to number");
+				return default;
 			}
 		}
 

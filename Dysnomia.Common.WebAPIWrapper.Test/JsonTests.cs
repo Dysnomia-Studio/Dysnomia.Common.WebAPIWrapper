@@ -13,21 +13,21 @@ namespace Dysnomia.Common.WebAPIWrapper.Test {
 			[JsonConverter(typeof(StringToBooleanConverter))]
 			public bool StringToBool { get; set; }
 			[JsonConverter(typeof(EmptyArrayToObjectConverter<SubEntity>))]
-			public SubEntity SubEntities { get; set; }
+			public SubEntity SubEntities { get; set; } = null!;
 			[JsonConverter(typeof(StringToNumberConverter<int>))]
 			public int StringToNumber { get; set; }
 			[JsonConverter(typeof(WhateverToStringConverter))]
-			public string NumberToString { get; set; }
+			public string NumberToString { get; set; } = null!;
 			[JsonConverter(typeof(WhateverToStringConverter))]
-			public string StringToString { get; set; }
+			public string StringToString { get; set; } = null!;
 			[JsonConverter(typeof(WhateverToStringConverter))]
-			public string BoolToString { get; set; }
+			public string BoolToString { get; set; } = null!;
 			[JsonConverter(typeof(WhateverToStringConverter))]
-			public string NullToString { get; set; }
+			public string NullToString { get; set; } = null!;
 		}
 
 		public class SubEntity {
-			public string Foo { get; set; }
+			public string Foo { get; set; } = null!;
 		}
 
 		[Fact]
