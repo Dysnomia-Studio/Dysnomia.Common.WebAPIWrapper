@@ -77,7 +77,7 @@ namespace Dysnomia.Common.WebAPIWrapper {
 			ThrowOnStatusCode(response.StatusCode, apiError);
 		}
 
-		protected async Task<string> GetStringAsync(string url, Dictionary<string, string> headers) {
+		protected async Task<string> GetStringAsync(Uri url, Dictionary<string, string> headers) {
 			var response = await GetClient(headers).GetAsync(url);
 
 			await ThrowApiErrorsAsync(response);
@@ -85,19 +85,35 @@ namespace Dysnomia.Common.WebAPIWrapper {
 			return await response.Content.ReadAsStringAsync();
 		}
 
-		protected async Task<string> GetStringAsync(string url) {
+		protected async Task<string> GetStringAsync(Uri url) {
 			return await GetStringAsync(url, null);
 		}
 
-		protected async Task<T> GetAsync<T>(string url, Dictionary<string, string> headers) {
+		protected async Task<string> GetStringAsync(string url, Dictionary<string, string> headers) {
+			return await GetStringAsync(new Uri(url), headers);
+		}
+
+		protected async Task<string> GetStringAsync(string url) {
+			return await GetStringAsync(new Uri(url), null);
+		}
+
+		protected async Task<T> GetAsync<T>(Uri url, Dictionary<string, string> headers) {
 			return JsonSerializer.Deserialize<T>(await GetStringAsync(url, headers));
 		}
 
-		protected async Task<T> GetAsync<T>(string url) {
+		protected async Task<T> GetAsync<T>(Uri url) {
 			return await GetAsync<T>(url, null);
 		}
 
-		protected async Task<string> PostStringAsync(string url, HttpContent content, Dictionary<string, string> headers) {
+		protected async Task<T> GetAsync<T>(string url, Dictionary<string, string> headers) {
+			return await GetAsync<T>(new Uri(url), headers);
+		}
+
+		protected async Task<T> GetAsync<T>(string url) {
+			return await GetAsync<T>(new Uri(url), null);
+		}
+
+		protected async Task<string> PostStringAsync(Uri url, HttpContent content, Dictionary<string, string> headers) {
 			var response = await GetClient(headers).PostAsync(url, content);
 
 			await ThrowApiErrorsAsync(response);
@@ -105,26 +121,50 @@ namespace Dysnomia.Common.WebAPIWrapper {
 			return await response.Content.ReadAsStringAsync();
 		}
 
-		protected async Task<string> PostStringAsync(string url, HttpContent content) {
+		protected async Task<string> PostStringAsync(Uri url, HttpContent content) {
 			return await PostStringAsync(url, content, null);
 		}
 
-		protected async Task PostAsync(string url, HttpContent content, Dictionary<string, string> headers) {
+		protected async Task<string> PostStringAsync(string url, HttpContent content, Dictionary<string, string> headers) {
+			return await PostStringAsync(new Uri(url), content, headers);
+		}
+
+		protected async Task<string> PostStringAsync(string url, HttpContent content) {
+			return await PostStringAsync(new Uri(url), content, null);
+		}
+
+		protected async Task PostAsync(Uri url, HttpContent content, Dictionary<string, string> headers) {
 			var response = await GetClient(headers).PostAsync(url, content);
 
 			await ThrowApiErrorsAsync(response);
 		}
 
-		protected async Task PostAsync(string url, HttpContent content) {
+		protected async Task PostAsync(Uri url, HttpContent content) {
 			await PostAsync(url, content, null);
 		}
 
-		protected async Task<T> PostAsync<T>(string url, HttpContent content, Dictionary<string, string> headers) {
+		protected async Task PostAsync(string url, HttpContent content, Dictionary<string, string> headers) {
+			await PostAsync(new Uri(url), content, headers);
+		}
+
+		protected async Task PostAsync(string url, HttpContent content) {
+			await PostAsync(new Uri(url), content, null);
+		}
+
+		protected async Task<T> PostAsync<T>(Uri url, HttpContent content, Dictionary<string, string> headers) {
 			return JsonSerializer.Deserialize<T>(await PostStringAsync(url, content, headers));
 		}
 
-		protected async Task<T> PostAsync<T>(string url, HttpContent content) {
+		protected async Task<T> PostAsync<T>(Uri url, HttpContent content) {
 			return await PostAsync<T>(url, content, null);
+		}
+
+		protected async Task<T> PostAsync<T>(string url, HttpContent content, Dictionary<string, string> headers) {
+			return await PostAsync<T>(new Uri(url), content, headers);
+		}
+
+		protected async Task<T> PostAsync<T>(string url, HttpContent content) {
+			return await PostAsync<T>(new Uri(url), content, null);
 		}
 	}
 }
