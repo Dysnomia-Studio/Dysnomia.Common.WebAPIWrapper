@@ -1,4 +1,6 @@
 ﻿using Dysnomia.Common.WebAPIWrapper.Exceptions;
+
+using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
@@ -8,9 +10,13 @@ using System.Threading.Tasks;
 namespace Dysnomia.Common.WebAPIWrapper {
 	public class WebAPIQuerier {
 		private readonly IHttpClientFactory _clientFactory;
-		private readonly Dictionary<string, string> _defaultHeaders;
+		private readonly Dictionary<string, string> _defaultHeaders = null;
 
-		public WebAPIQuerier(IHttpClientFactory clientFactory, Dictionary<string, string> defaultHeaders = null) {
+		public WebAPIQuerier(IHttpClientFactory clientFactory) {
+			_clientFactory = clientFactory;
+		}
+
+		public WebAPIQuerier(IHttpClientFactory clientFactory, Dictionary<string, string> defaultHeaders) {
 			_clientFactory = clientFactory;
 			_defaultHeaders = defaultHeaders;
 		}
@@ -33,15 +39,8 @@ namespace Dysnomia.Common.WebAPIWrapper {
 			return client;
 		}
 
-		protected async Task ThrowAPIErrors(HttpResponseMessage response) {
-			string apiError = null;
-			try {
-				apiError = await response?.Content?.ReadAsStringAsync();
-			} catch {
-				// Do nothing
-			}
-
-			switch (response.StatusCode) {
+		private static void ThrowOnStatusCode(HttpStatusCode statusCode, string apiError) {
+			switch (statusCode) {
 				case HttpStatusCode.BadRequest:
 					throw new BadRequestException(apiError);
 
@@ -60,34 +59,71 @@ namespace Dysnomia.Common.WebAPIWrapper {
 			}
 		}
 
-		protected async Task<string> GetString(string url, Dictionary<string, string> headers = null) {
+		protected static async Task ThrowApiErrorsAsync(HttpResponseMessage response) {
+			if (response is null) {
+				throw new ArgumentNullException(nameof(response));
+			}
+
+			string apiError = null;
+			if (response.Content is not null) {
+				try {
+					apiError = await response.Content.ReadAsStringAsync();
+				} catch {
+					// Do nothing
+				}
+			}
+
+			ThrowOnStatusCode(response.StatusCode, apiError);
+		}
+
+		protected async Task<string> GetStringAsync(string url, Dictionary<string, string> headers) {
 			var response = await GetClient(headers).GetAsync(url);
 
-			await this.ThrowAPIErrors(response);
+			await ThrowApiErrorsAsync(response);
 
 			return await response.Content.ReadAsStringAsync();
 		}
 
-		protected async Task<T> Get<T>(string url, Dictionary<string, string> headers = null) {
-			return JsonSerializer.Deserialize<T>(await GetString(url, headers));
+		protected async Task<string> GetStringAsync(string url) {
+			return await GetStringAsync(url, null);
 		}
 
-		protected async Task Post(string url, HttpContent content, Dictionary<string, string> headers = null) {
-			var response = await GetClient(headers).PostAsync(url, content);
-
-			await this.ThrowAPIErrors(response);
+		protected async Task<T> GetAsync<T>(string url, Dictionary<string, string> headers) {
+			return JsonSerializer.Deserialize<T>(await GetStringAsync(url, headers));
 		}
 
-		protected async Task<string> PostString(string url, HttpContent content, Dictionary<string, string> headers = null) {
+		protected async Task<T> GetAsync<T>(string url) {
+			return await GetAsync<T>(url, null);
+		}
+
+		protected async Task<string> PostStringAsync(string url, HttpContent content, Dictionary<string, string> headers) {
 			var response = await GetClient(headers).PostAsync(url, content);
 
-			await this.ThrowAPIErrors(response);
+			await ThrowApiErrorsAsync(response);
 
 			return await response.Content.ReadAsStringAsync();
 		}
 
-		protected async Task<T> Post<T>(string url, HttpContent content, Dictionary<string, string> headers = null) {
-			return JsonSerializer.Deserialize<T>(await PostString(url, content, headers));
+		protected async Task<string> PostStringAsync(string url, HttpContent content) {
+			return await PostStringAsync(url, content, null);
+		}
+
+		protected async Task PostAsync(string url, HttpContent content, Dictionary<string, string> headers) {
+			var response = await GetClient(headers).PostAsync(url, content);
+
+			await ThrowApiErrorsAsync(response);
+		}
+
+		protected async Task PostAsync(string url, HttpContent content) {
+			await PostAsync(url, content, null);
+		}
+
+		protected async Task<T> PostAsync<T>(string url, HttpContent content, Dictionary<string, string> headers) {
+			return JsonSerializer.Deserialize<T>(await PostStringAsync(url, content, headers));
+		}
+
+		protected async Task<T> PostAsync<T>(string url, HttpContent content) {
+			return await PostAsync<T>(url, content, null);
 		}
 	}
 }

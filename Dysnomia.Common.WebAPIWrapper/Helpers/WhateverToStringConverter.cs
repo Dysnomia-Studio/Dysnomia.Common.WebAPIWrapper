@@ -4,7 +4,7 @@ using System.Text.Json.Serialization;
 
 namespace Dysnomia.Common.WebAPIWrapper.Helpers {
 	public class WhateverToStringConverter : JsonConverter<string> {
-		public override string Read(ref Utf8JsonReader reader, Type type, JsonSerializerOptions options) {
+		public override string Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) {
 			if (reader.TokenType == JsonTokenType.Number) {
 				return reader.GetInt64().ToString();
 			}
@@ -25,9 +25,9 @@ namespace Dysnomia.Common.WebAPIWrapper.Helpers {
 				return null;
 			}
 
-			using (JsonDocument document = JsonDocument.ParseValue(ref reader)) {
-				throw new Exception($"unable to parse {document.RootElement.ToString()} to string");
-			}
+			using JsonDocument document = JsonDocument.ParseValue(ref reader);
+
+			throw new JsonException($"unable to parse {document.RootElement.ToString()} to string");
 		}
 
 		public override bool CanConvert(Type typeToConvert) {

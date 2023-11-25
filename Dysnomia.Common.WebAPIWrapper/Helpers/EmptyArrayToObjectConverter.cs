@@ -4,7 +4,7 @@ using System.Text.Json.Serialization;
 
 namespace Dysnomia.Common.WebAPIWrapper.Helpers {
 	public class EmptyArrayToObjectConverter<T> : JsonConverter<T> {
-		public override T Read(ref Utf8JsonReader reader, Type type, JsonSerializerOptions options) {
+		public override T Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) {
 			var rootElement = JsonDocument.ParseValue(ref reader);
 
 			// if its array return new instance or null

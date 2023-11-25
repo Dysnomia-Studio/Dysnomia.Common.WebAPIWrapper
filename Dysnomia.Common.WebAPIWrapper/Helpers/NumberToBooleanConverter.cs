@@ -4,7 +4,7 @@ using System.Text.Json.Serialization;
 
 namespace Dysnomia.Common.WebAPIWrapper.Helpers {
 	public class NumberToBooleanConverter : JsonConverter<bool> {
-		public override bool Read(ref Utf8JsonReader reader, Type type, JsonSerializerOptions options) {
+		public override bool Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) {
 			if (reader.TokenType == JsonTokenType.Number) {
 				return reader.GetInt64() == 1;
 			}
