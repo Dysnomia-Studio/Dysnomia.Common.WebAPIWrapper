@@ -32,7 +32,7 @@ jobs:
         dotnet tool install --global dotnet-sonarscanner
         sudo apt-get update
         sudo mkdir -p /usr/share/man/man1
-        sudo apt install openjdk-11-jdk jq -y
+        sudo apt install openjdk-17-jdk jq -y
 
     - name: Start sonarscanner
       run: dotnet sonarscanner begin /k:"${{ env.SONAR_KEY }}" /d:sonar.host.url="${{ env.SONAR_HOST_URL }}" /d:sonar.token="${{ env.SONAR_TOKEN }}" /d:sonar.cs.vscoveragexml.reportsPaths=coverage.xml /d:sonar.coverage.exclusions="**Test*.cs" /d:sonar.branch.name="${{github.ref_name}}"
