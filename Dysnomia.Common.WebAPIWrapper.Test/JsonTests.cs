@@ -22,6 +22,8 @@ namespace Dysnomia.Common.WebAPIWrapper.Test {
             public string BoolToString { get; set; } = null!;
             [JsonConverter(typeof(WhateverToStringConverter))]
             public string NullToString { get; set; } = null!;
+            [JsonConverter(typeof(StringToFloatConverter))]
+            public float FloatToString { get; set; }
         }
 
         public class SubEntity {
@@ -30,8 +32,8 @@ namespace Dysnomia.Common.WebAPIWrapper.Test {
 
         [Fact]
         public void JsonTest_Converters_Test1() {
-            var input = @"{""SubEntities"":[],""NumberToBool"":0,""StringToBool"":""false"",""StringToNumber"":""10"",""NumberToString"":10,""StringToString"":""test"",""BoolToString"":false,""NullToString"":null}";
-            var expected = @"{""NumberToBool"":false,""StringToBool"":false,""SubEntities"":{""Foo"":null},""StringToNumber"":10,""NumberToString"":""10"",""StringToString"":""test"",""BoolToString"":""false"",""NullToString"":null}";
+            var input = @"{""SubEntities"":[],""NumberToBool"":0,""StringToBool"":""false"",""StringToNumber"":""10"",""NumberToString"":10,""StringToString"":""test"",""BoolToString"":false,""NullToString"":null,""FloatToString"":""10.5""}";
+            var expected = @"{""NumberToBool"":false,""StringToBool"":false,""SubEntities"":{""Foo"":null},""StringToNumber"":10,""NumberToString"":""10"",""StringToString"":""test"",""BoolToString"":""false"",""NullToString"":null,""FloatToString"":10.5}";
 
             var entity = JsonSerializer.Deserialize<Entity>(input);
             var output = JsonSerializer.Serialize(entity);
@@ -41,8 +43,8 @@ namespace Dysnomia.Common.WebAPIWrapper.Test {
 
         [Fact]
         public void JsonTest_Converters_Test2() {
-            var input = @"{""SubEntities"":{""Foo"":""bar""},""NumberToBool"":1,""StringToBool"":""true"",""StringToNumber"":""42"",""NumberToString"":42,""StringToString"":""foo"",""BoolToString"":true,""NullToString"":null}";
-            var expected = @"{""NumberToBool"":true,""StringToBool"":true,""SubEntities"":{""Foo"":""bar""},""StringToNumber"":42,""NumberToString"":""42"",""StringToString"":""foo"",""BoolToString"":""true"",""NullToString"":null}";
+            var input = @"{""SubEntities"":{""Foo"":""bar""},""NumberToBool"":1,""StringToBool"":""true"",""StringToNumber"":""42"",""NumberToString"":42,""StringToString"":""foo"",""BoolToString"":true,""NullToString"":null,""FloatToString"":""27.42""}";
+            var expected = @"{""NumberToBool"":true,""StringToBool"":true,""SubEntities"":{""Foo"":""bar""},""StringToNumber"":42,""NumberToString"":""42"",""StringToString"":""foo"",""BoolToString"":""true"",""NullToString"":null,""FloatToString"":27.42}";
 
             var entity = JsonSerializer.Deserialize<Entity>(input);
             var output = JsonSerializer.Serialize(entity);
